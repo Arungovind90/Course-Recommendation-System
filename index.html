@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CourseIQ — 1700+ Courses · ML Recommendation Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ─────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111318;--ink2:#3a3d4a;--ink3:#797e96;--ink4:#b0b4c4;
+  --bg:#f0efe9;--surf:#ffffff;--surf2:#f7f6f2;--surf3:#eeeee8;
+  --teal:#0c9e79;--teal2:#e1f5ee;--teal3:#06744f;
+  --indigo:#3c4dc2;--indigo2:#eaecfb;--indigo3:#1e2880;
+  --amber:#c08c1a;--amber2:#fdf2dc;--amber3:#7a5a00;
+  --rose:#c44040;--rose2:#fdeaea;--rose3:#8a2020;
+  --violet:#7c40c4;--violet2:#f0e8fb;--violet3:#4a1a8a;
+  --slate:#566070;--slate2:#eceef3;
+  --r-sm:8px;--r:14px;--r-lg:22px;--r-xl:32px;
+  --sh-sm:0 1px 3px rgba(17,19,24,.05),0 1px 2px rgba(17,19,24,.04);
+  --sh:0 4px 16px rgba(17,19,24,.08),0 1px 4px rgba(17,19,24,.04);
+  --sh-lg:0 12px 40px rgba(17,19,24,.12),0 4px 12px rgba(17,19,24,.06);
+  --ease:.22s cubic-bezier(.4,0,.2,1);
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:5px}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.wrap{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+.sidebar{
+  width:268px;flex-shrink:0;background:var(--ink);
+  display:flex;flex-direction:column;position:fixed;
+  top:0;left:0;height:100vh;z-index:50;overflow-y:auto;
+  transition:transform var(--ease);
+}
+
+.logo-zone{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.logo-row{display:flex;align-items:center;gap:11px;margin-bottom:3px}
+.logo-sq{width:38px;height:38px;background:var(--teal);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-sq svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round}
+.logo-name{font-family:'Lora',serif;font-size:23px;color:#fff;letter-spacing:-.3px}
+.logo-tag{font-size:10.5px;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+
+.nav-label{padding:18px 20px 6px;font-size:9.5px;color:rgba(255,255,255,.28);
+  letter-spacing:1.2px;text-transform:uppercase;font-weight:600}
+.nav-btn{
+  display:flex;align-items:center;gap:11px;padding:10px 14px;margin:1px 10px;
+  border-radius:10px;cursor:pointer;font-size:13.5px;color:rgba(255,255,255,.6);
+  transition:all var(--ease);font-weight:400;border:none;background:transparent;
+  width:calc(100% - 20px);text-align:left;
+}
+.nav-btn svg{width:16px;height:16px;flex-shrink:0;opacity:.65}
+.nav-btn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.nav-btn:hover svg{opacity:1}
+.nav-btn.active{background:var(--teal);color:#fff;font-weight:500}
+.nav-btn.active svg{opacity:1}
+
+.student-section{padding:14px 16px 10px}
+.student-section h4{font-size:9.5px;color:rgba(255,255,255,.28);letter-spacing:1.2px;
+  text-transform:uppercase;font-weight:600;margin-bottom:8px}
+.s-row{
+  display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:9px;
+  cursor:pointer;transition:all var(--ease);font-size:12.5px;
+  color:rgba(255,255,255,.6);border:none;background:transparent;width:100%;
+  text-align:left;margin-bottom:1px;
+}
+.s-row:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.s-row.active{background:rgba(12,158,121,.2);color:#5edbb0}
+.s-av{width:27px;height:27px;border-radius:50%;background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  font-weight:600;flex-shrink:0;letter-spacing:-.3px}
+.s-row.active .s-av{background:rgba(12,158,121,.35);color:#5edbb0}
+.s-av-txt{min-width:0}
+.s-nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.s-lv{font-size:10px;opacity:.5;margin-top:1px}
+
+.sidebar-foot{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.07)}
+.stat-row{display:flex;gap:6px}
+.stat-pill{flex:1;background:rgba(255,255,255,.05);border-radius:8px;padding:9px 6px;text-align:center}
+.stat-pill .v{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.5px}
+.stat-pill .l{font-size:8.5px;color:rgba(255,255,255,.3);margin-top:1px;text-transform:uppercase;letter-spacing:.6px}
+
+/* ── MAIN ────────────────────────────────────────── */
+.main{margin-left:268px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── TOPBAR ──────────────────────────────────────── */
+.topbar{
+  background:var(--surf);border-bottom:1px solid rgba(17,19,24,.07);
+  padding:0 34px;height:62px;display:flex;align-items:center;gap:16px;
+  position:sticky;top:0;z-index:40;
+}
+.topbar-hd{font-family:'Lora',serif;font-size:19px;color:var(--ink);flex:1;font-weight:400}
+.topbar-hd em{color:var(--teal);font-style:italic}
+.toggle-wrap{display:flex;background:var(--surf2);border:1px solid rgba(17,19,24,.07);
+  border-radius:10px;padding:3px}
+.tog-btn{padding:7px 18px;border-radius:8px;border:none;background:transparent;
+  font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink3);cursor:pointer;
+  font-weight:500;transition:all var(--ease)}
+.tog-btn.active{background:var(--surf);box-shadow:var(--sh-sm);color:var(--ink)}
+.catalog-badge{
+  font-size:11px;background:var(--teal2);color:var(--teal3);padding:5px 13px;
+  border-radius:20px;font-weight:600;border:1px solid rgba(12,158,121,.2);white-space:nowrap;
+}
+
+/* ── PAGE CONTENT ────────────────────────────────── */
+.page{flex:1;padding:28px 34px 60px;max-width:1140px}
+
+/* ── SEARCH PANEL ────────────────────────────────── */
+.search-panel{
+  background:var(--surf);border-radius:var(--r-lg);
+  box-shadow:var(--sh);padding:30px 34px 26px;margin-bottom:24px;
+  border:1px solid rgba(17,19,24,.05);
+}
+.sp-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px}
+.sp-hed h2{font-family:'Lora',serif;font-size:27px;font-weight:400;color:var(--ink);letter-spacing:-.3px}
+.sp-hed p{color:var(--ink3);font-size:14px;margin-top:5px;font-weight:300;line-height:1.5}
+.corpus-tag{
+  background:var(--surf2);border:1px solid rgba(17,19,24,.08);border-radius:10px;
+  padding:10px 16px;text-align:center;flex-shrink:0;
+}
+.corpus-tag .num{font-size:24px;font-weight:600;color:var(--ink);font-family:'Lora',serif}
+.corpus-tag .lbl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+
+.search-row{display:flex;gap:10px;margin-bottom:14px}
+.search-box{position:relative;flex:1}
+.search-box input{
+  width:100%;background:var(--surf2);border:1.5px solid rgba(17,19,24,.1);
+  border-radius:12px;padding:14px 52px 14px 18px;font-size:15px;
+  font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;
+  transition:border-color var(--ease),box-shadow var(--ease);
+}
+.search-box input::placeholder{color:var(--ink4)}
+.search-box input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(12,158,121,.1)}
+.search-ico{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  pointer-events:none;color:var(--ink3)
+}
+.search-ico svg{width:19px;height:19px}
+.btn-go{
+  padding:0 26px;background:var(--teal);color:#fff;border:none;
+  border-radius:12px;font-size:14px;font-family:'DM Sans',sans-serif;
+  font-weight:500;cursor:pointer;transition:all var(--ease);white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-go:hover{background:var(--teal3);transform:translateY(-1px);box-shadow:0 4px 14px rgba(12,158,121,.3)}
+.btn-go svg{width:16px;height:16px}
+
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.f-group{display:flex;flex-direction:column;gap:4px}
+.f-group label{font-size:11px;color:var(--ink3);font-weight:500;letter-spacing:.2px}
+.f-group select{
+  background:var(--surf2);border:1.5px solid rgba(17,19,24,.1);
+  border-radius:9px;padding:8px 32px 8px 12px;font-size:13px;
+  font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;cursor:pointer;
+  transition:border-color var(--ease);appearance:none;min-width:130px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23797e96' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.f-group select:focus{border-color:var(--teal)}
+
+.tags-area{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.q-tag{
+  padding:5px 13px;border-radius:20px;border:1.5px solid rgba(17,19,24,.1);
+  background:var(--surf2);font-size:12px;color:var(--ink2);cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all var(--ease);
+}
+.q-tag:hover{border-color:var(--teal);color:var(--teal);background:var(--teal2)}
+
+/* ── STUDENT HERO ────────────────────────────────── */
+.stu-hero{
+  background:var(--ink);border-radius:var(--r-lg);padding:24px 28px;
+  margin-bottom:22px;display:flex;align-items:center;gap:20px;
+  position:relative;overflow:hidden;
+}
+.stu-hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(12,158,121,.18) 0%,transparent 70%);
+}
+.stu-av-lg{width:60px;height:60px;border-radius:50%;background:rgba(12,158,121,.2);
+  border:2px solid rgba(12,158,121,.4);display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:600;color:#5edbb0;flex-shrink:0;font-family:'Lora',serif}
+.stu-info h3{font-family:'Lora',serif;font-size:21px;color:#fff;font-weight:400;margin-bottom:3px}
+.stu-info p{font-size:12.5px;color:rgba(255,255,255,.45);font-weight:300;line-height:1.5}
+.stu-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.stu-tag{
+  font-size:10.5px;padding:3px 10px;border-radius:20px;font-weight:500;
+  background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);
+  border:1px solid rgba(255,255,255,.1);
+}
+.stu-tag.hi{background:rgba(12,158,121,.2);color:#5edbb0;border-color:rgba(12,158,121,.35)}
+
+/* ── RESULTS ─────────────────────────────────────── */
+.res-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+.res-title{font-family:'Lora',serif;font-size:22px;font-weight:400;color:var(--ink)}
+.res-title em{color:var(--teal);font-style:italic}
+.res-meta{display:flex;align-items:center;gap:8px}
+.res-count{font-size:11.5px;background:var(--teal2);color:var(--teal3);
+  padding:4px 12px;border-radius:20px;font-weight:600;border:1px solid rgba(12,158,121,.2)}
+.res-searched{font-size:11px;color:var(--ink3)}
+
+/* ── COURSE GRID ─────────────────────────────────── */
+.c-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(308px,1fr));gap:16px}
+
+/* ── COURSE CARD ─────────────────────────────────── */
+.cc{
+  background:var(--surf);border-radius:var(--r);
+  border:1px solid rgba(17,19,24,.07);box-shadow:var(--sh-sm);
+  display:flex;flex-direction:column;cursor:pointer;
+  transition:all var(--ease);overflow:hidden;
+}
+.cc:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:rgba(12,158,121,.2)}
+
+.cc-top{padding:18px 18px 14px;flex:1}
+.cc-rank{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:6px;background:var(--surf2);
+  font-size:10.5px;font-weight:600;color:var(--ink3);margin-bottom:10px;
+}
+.cc:nth-child(1) .cc-rank{background:var(--amber2);color:var(--amber3)}
+.cc:nth-child(2) .cc-rank{background:#eceef3;color:var(--slate)}
+.cc:nth-child(3) .cc-rank{background:#fdecd5;color:#8a5010}
+
+.cc-name{font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:7px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.cc-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.bd{
+  display:inline-flex;align-items:center;font-size:10px;font-weight:500;
+  padding:2px 8px;border-radius:4px;
+}
+.bd-domain{background:var(--slate2);color:var(--slate)}
+.bd-teal{background:var(--teal2);color:var(--teal3)}
+.bd-amber{background:var(--amber2);color:var(--amber3)}
+.bd-rose{background:var(--rose2);color:var(--rose3)}
+.bd-indigo{background:var(--indigo2);color:var(--indigo3)}
+.bd-violet{background:var(--violet2);color:var(--violet3)}
+
+.cc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.skill-tag{
+  font-size:10px;padding:2px 7px;border-radius:4px;
+  background:var(--surf2);color:var(--ink3);border:1px solid rgba(17,19,24,.06);
+}
+
+.cc-stats{display:flex;gap:14px;margin-bottom:12px}
+.cstat{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--ink3)}
+.cstat svg{width:12px;height:12px;flex-shrink:0}
+.cstat strong{color:var(--ink2);font-weight:500}
+
+.match-wrap{margin-bottom:2px}
+.match-labels{display:flex;justify-content:space-between;font-size:10.5px;
+  color:var(--ink3);margin-bottom:4px}
+.match-labels b{color:var(--ink);font-weight:600}
+.bar-track{height:5px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.bf-hi{background:linear-gradient(90deg,#0c9e79,#10c98f)}
+.bf-md{background:linear-gradient(90deg,#c08c1a,#e8b050)}
+.bf-lo{background:linear-gradient(90deg,#7c8aa0,#9aabbc)}
+
+/* Score breakdown (expanded) */
+.cc-expand{
+  max-height:0;overflow:hidden;transition:max-height .35s ease;
+  border-top:0 solid rgba(17,19,24,.06);background:var(--surf2);
+}
+.cc.open .cc-expand{max-height:220px;border-top-width:1px}
+.expand-inner{padding:14px 18px}
+.exp-title{font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;
+  letter-spacing:.7px;margin-bottom:10px}
+.srow{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11.5px}
+.slbl{color:var(--ink3);width:130px;flex-shrink:0}
+.strk{flex:1;height:3px;background:rgba(17,19,24,.08);border-radius:3px;overflow:hidden}
+.sfill{height:100%;border-radius:3px}
+.sval{font-weight:600;color:var(--ink2);width:34px;text-align:right;flex-shrink:0}
+
+.cc-foot{
+  padding:11px 18px;border-top:1px solid rgba(17,19,24,.05);
+  display:flex;align-items:center;justify-content:space-between;background:var(--surf2);
+}
+.price{font-size:13px;font-weight:600;color:var(--ink)}
+.price.free{color:var(--teal)}
+.inst{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.inst svg{width:12px;height:12px;flex-shrink:0}
+
+/* ── DASH ────────────────────────────────────────── */
+.d-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.d-card{background:var(--surf);border:1px solid rgba(17,19,24,.07);
+  border-radius:var(--r);padding:18px;box-shadow:var(--sh-sm)}
+.d-val{font-size:28px;font-weight:600;color:var(--ink);font-family:'Lora',serif;letter-spacing:-.5px}
+.d-lbl{font-size:11.5px;color:var(--ink3);margin-top:3px}
+.d-sub{font-size:11px;color:var(--teal);margin-top:5px;font-weight:500}
+
+.sec-card{background:var(--surf);border:1px solid rgba(17,19,24,.07);
+  border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh-sm);margin-bottom:14px}
+.sec-card h3{font-family:'Lora',serif;font-size:18px;font-weight:400;color:var(--ink);margin-bottom:16px}
+
+.w-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.w-lbl{font-size:13px;color:var(--ink2);width:190px;flex-shrink:0}
+.w-bar{flex:1;height:7px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.w-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.w-pct{font-size:12.5px;font-weight:600;color:var(--ink);width:34px;text-align:right}
+
+.dom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.dom-chip{background:var(--surf2);border:1px solid rgba(17,19,24,.07);
+  border-radius:9px;padding:12px 14px;display:flex;
+  align-items:center;justify-content:space-between}
+.dom-nm{font-size:12.5px;color:var(--ink2)}
+.dom-ct{font-size:17px;font-weight:600;color:var(--ink);font-family:'Lora',serif}
+
+/* ── STATES ──────────────────────────────────────── */
+.loader-wrap{display:flex;flex-direction:column;align-items:center;padding:60px 20px}
+.loader{width:40px;height:40px;border:2.5px solid rgba(12,158,121,.15);
+  border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-size:13.5px;color:var(--ink3);font-weight:300}
+
+.empty{text-align:center;padding:60px 20px;
+  background:var(--surf);border:1px solid rgba(17,19,24,.07);
+  border-radius:var(--r-lg)}
+.empty svg{width:44px;height:44px;color:var(--ink4);margin-bottom:14px}
+.empty h3{font-family:'Lora',serif;font-size:19px;font-weight:400;color:var(--ink);margin-bottom:7px}
+.empty p{color:var(--ink3);font-size:13.5px}
+
+/* ── TOAST ───────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:26px;right:26px;background:var(--ink);color:#fff;
+  padding:12px 20px;border-radius:12px;font-size:13.5px;
+  box-shadow:var(--sh-lg);z-index:999;
+  transform:translateY(70px);opacity:0;
+  transition:all .28s cubic-bezier(.4,0,.2,1);pointer-events:none;
+}
+.toast.on{transform:translateY(0);opacity:1}
+.tdot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--teal);margin-right:7px;vertical-align:middle}
+
+/* ── HAMBURGER ───────────────────────────────────── */
+.ham{display:none;position:fixed;top:12px;left:12px;z-index:100;
+  background:var(--ink);border:none;border-radius:9px;padding:8px;cursor:pointer}
+.ham svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ── FADE-UP ─────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .35s ease both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media(max-width:800px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .ham{display:flex}
+  .topbar{padding:0 14px 0 54px}
+  .page{padding:18px 14px 50px}
+  .d-grid{grid-template-columns:1fr 1fr}
+  .c-grid{grid-template-columns:1fr}
+  .sp-head{flex-direction:column}
+  .search-row{flex-direction:column}
+  .btn-go{width:100%;justify-content:center;padding:13px}
+}
+</style>
+</head>
+<body>
+
+<button class="ham" id="ham" onclick="toggleSidebar()" aria-label="Menu">
+  <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<div class="wrap">
+<!-- ══ SIDEBAR ══════════════════════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="logo-zone">
+    <div class="logo-row">
+      <div class="logo-sq">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="logo-name">CourseIQ</span>
+    </div>
+    <div class="logo-tag">ML Recommendation Engine</div>
+  </div>
+
+  <div class="nav-label">Explore</div>
+  <button class="nav-btn active" id="nb-topic" onclick="tab('topic',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Topic Search
+  </button>
+  <button class="nav-btn" id="nb-student" onclick="tab('student',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Student Profile
+  </button>
+  <button class="nav-btn" id="nb-dash" onclick="tab('dash',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Model Dashboard
+  </button>
+
+  <div class="student-section">
+    <h4>Student Profiles</h4>
+    <div id="s-list">
+      {% for s in students %}
+      <button class="s-row" onclick="pickStudent('{{s.Student_ID}}',this)">
+        <div class="s-av">{{s.Name[0]}}</div>
+        <div class="s-av-txt">
+          <div class="s-nm">{{s.Name.split()[0]}}</div>
+          <div class="s-lv">{{s.Level}}</div>
+        </div>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="sidebar-foot">
+    <div class="stat-row">
+      <div class="stat-pill"><div class="v" id="sm-c">—</div><div class="l">Courses</div></div>
+      <div class="stat-pill"><div class="v" id="sm-s">{{students|length}}</div><div class="l">Students</div></div>
+      <div class="stat-pill"><div class="v" id="sm-d">19</div><div class="l">Domains</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ════════════════════════════════════════ -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-hd">Find your next <em>great course</em></div>
+    <div class="toggle-wrap">
+      <button class="tog-btn active" id="tb-topic" onclick="tab('topic',document.getElementById('nb-topic'))">Search</button>
+      <button class="tog-btn" id="tb-student" onclick="tab('student',document.getElementById('nb-student'))">Profile</button>
+      <button class="tog-btn" id="tb-dash" onclick="tab('dash',document.getElementById('nb-dash'))">Dashboard</button>
+    </div>
+    <span class="catalog-badge" id="cat-badge">1,710 courses</span>
+  </header>
+
+  <div class="page">
+
+    <!-- ── TOPIC TAB ─────────────────────────────── -->
+    <div id="p-topic">
+      <div class="search-panel fu">
+        <div class="sp-head">
+          <div class="sp-hed">
+            <h2>What do you want to learn?</h2>
+            <p>Search across 1,710 courses in 19 domains — our hybrid ML engine ranks the best matches for you</p>
+          </div>
+          <div class="corpus-tag">
+            <div class="num" id="corpus-num">1,710</div>
+            <div class="lbl">courses indexed</div>
+          </div>
+        </div>
+        <div class="search-row">
+          <div class="search-box">
+            <input type="text" id="q" placeholder="e.g. machine learning, react hooks, ethical hacking, solidity..."/>
+            <span class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          </div>
+          <button class="btn-go" onclick="doSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Search
+          </button>
+        </div>
+        <div class="filter-row">
+          <div class="f-group">
+            <label>Difficulty</label>
+            <select id="f-diff">
+              <option value="all">Any level</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="f-group">
+            <label>Platform</label>
+            <select id="f-plat">
+              <option value="all">Any platform</option>
+              <option value="Udemy">Udemy</option>
+              <option value="Coursera">Coursera</option>
+              <option value="edX">edX</option>
+              <option value="LinkedIn Learning">LinkedIn Learning</option>
+              <option value="Pluralsight">Pluralsight</option>
+              <option value="DataCamp">DataCamp</option>
+              <option value="Codecademy">Codecademy</option>
+              <option value="FreeCodeCamp">FreeCodeCamp</option>
+              <option value="Google Learn">Google Learn</option>
+              <option value="Microsoft Learn">Microsoft Learn</option>
+              <option value="AWS Training">AWS Training</option>
+              <option value="Stanford Online">Stanford Online</option>
+            </select>
+          </div>
+          <div class="f-group">
+            <label>Results</label>
+            <select id="f-n">
+              <option value="6">Top 6</option>
+              <option value="10" selected>Top 10</option>
+              <option value="15">Top 15</option>
+              <option value="20">Top 20</option>
+            </select>
+          </div>
+          <div class="f-group">
+            <label>Sort by</label>
+            <select id="f-sort">
+              <option value="match">Best match</option>
+              <option value="rating">Highest rated</option>
+              <option value="enrolled">Most popular</option>
+              <option value="price_asc">Price: Free first</option>
+            </select>
+          </div>
+        </div>
+        <div class="tags-area">
+          <span class="q-tag" onclick="qs('machine learning')">Machine Learning</span>
+          <span class="q-tag" onclick="qs('react javascript')">React</span>
+          <span class="q-tag" onclick="qs('deep learning neural networks')">Deep Learning</span>
+          <span class="q-tag" onclick="qs('python data science')">Python</span>
+          <span class="q-tag" onclick="qs('ethical hacking cybersecurity')">Cybersecurity</span>
+          <span class="q-tag" onclick="qs('aws cloud devops')">Cloud & DevOps</span>
+          <span class="q-tag" onclick="qs('flutter mobile')">Flutter</span>
+          <span class="q-tag" onclick="qs('data analytics tableau')">Data Analytics</span>
+          <span class="q-tag" onclick="qs('transformers llm openai')">LLMs & GenAI</span>
+          <span class="q-tag" onclick="qs('solidity blockchain defi')">Blockchain</span>
+          <span class="q-tag" onclick="qs('unity game development')">Game Dev</span>
+          <span class="q-tag" onclick="qs('figma ui ux design')">UI/UX Design</span>
+          <span class="q-tag" onclick="qs('apache spark kafka data engineering')">Data Engineering</span>
+          <span class="q-tag" onclick="qs('quantum computing qiskit')">Quantum Computing</span>
+          <span class="q-tag" onclick="qs('ros2 robotics slam')">Robotics</span>
+        </div>
+      </div>
+      <div id="r-topic"></div>
+    </div>
+
+    <!-- ── STUDENT TAB ───────────────────────────── -->
+    <div id="p-student" style="display:none">
+      <div id="hero-wrap"></div>
+      <div id="r-student">
+        <div class="empty fu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <h3>Select a student profile</h3>
+          <p>Pick any student from the left sidebar to see personalised course recommendations</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD TAB ─────────────────────────── -->
+    <div id="p-dash" style="display:none">
+      <div id="dash-content">
+        <div class="loader-wrap"><div class="loader"></div><div class="loader-txt">Loading model insights…</div></div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /main -->
+</div><!-- /wrap -->
+
+<div class="toast" id="toast"><span class="tdot"></span><span id="tmsg"></span></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────
+let currentTab = 'topic';
+let dashLoaded = false;
+
+// ── TABS ───────────────────────────────────────────
+function tab(name, navEl) {
+  ['topic','student','dash'].forEach(t => {
+    document.getElementById('p-'+t).style.display = t===name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  document.querySelectorAll('.tog-btn').forEach(b => b.classList.remove('active'));
+  const tb = document.getElementById('tb-'+name);
+  if (tb) tb.classList.add('active');
+  currentTab = name;
+  if (name === 'dash' && !dashLoaded) loadDash();
+  if (window.innerWidth < 800) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ── TOAST ──────────────────────────────────────────
+function toast(msg) {
+  document.getElementById('tmsg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 3000);
+}
+
+// ── QUICK SEARCH ───────────────────────────────────
+function qs(q) {
+  document.getElementById('q').value = q;
+  tab('topic', document.getElementById('nb-topic'));
+  doSearch();
+}
+
+// ── TOPIC SEARCH ───────────────────────────────────
+async function doSearch() {
+  const query = document.getElementById('q').value.trim();
+  if (!query) { toast('Enter a topic to search'); return; }
+  const diff     = document.getElementById('f-diff').value;
+  const platform = document.getElementById('f-plat').value;
+  const topN     = parseInt(document.getElementById('f-n').value);
+  const sortBy   = document.getElementById('f-sort').value;
+  const wrap     = document.getElementById('r-topic');
+
+  wrap.innerHTML = `<div class="loader-wrap fu"><div class="loader"></div><div class="loader-txt">Searching ${document.getElementById('corpus-num').textContent} courses for <em>"${query}"</em>…</div></div>`;
+
+  try {
+    const res  = await fetch('/api/recommend/topic', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({topic:query, difficulty:diff, platform, top_n:topN})
+    });
+    const data = await res.json();
+    if (!data.success || !data.recommendations.length) {
+      wrap.innerHTML = emptyHTML('No courses found', 'Try broader keywords — e.g. "machine learning" instead of a specific algorithm name');
+      return;
+    }
+    let recs = data.recommendations;
+    recs = sortRecs(recs, sortBy);
+    const searched = data.total_searched ? data.total_searched.toLocaleString() : '1,710';
+    wrap.innerHTML = renderRecs(recs,
+      `Courses matching <em>"${query}"</em>`,
+      `${recs.length} shown · ${searched} searched`
+    );
+    bindCards();
+  } catch(e) {
+    wrap.innerHTML = emptyHTML('Connection failed', 'Make sure the Flask server is running: <code>python app.py</code>');
+  }
+}
+
+// ── STUDENT RECOMMEND ──────────────────────────────
+async function pickStudent(sid, el) {
+  document.querySelectorAll('.s-row').forEach(r => r.classList.remove('active'));
+  if (el) el.classList.add('active');
+  tab('student', document.getElementById('nb-student'));
+
+  document.getElementById('hero-wrap').innerHTML = '';
+  document.getElementById('r-student').innerHTML =
+    `<div class="loader-wrap fu"><div class="loader"></div><div class="loader-txt">Building personalised recommendations…</div></div>`;
+
+  try {
+    const res  = await fetch('/api/recommend/student', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({student_id:sid, top_n:10})
+    });
+    const data = await res.json();
+    if (!data.success) { toast('Could not load student data'); return; }
+
+    const s = data.student;
+    const tags = (s.Interests||'').split(' ').slice(0,5);
+    document.getElementById('hero-wrap').innerHTML = `
+      <div class="stu-hero fu">
+        <div class="stu-av-lg">${s.Name[0]}</div>
+        <div class="stu-info">
+          <h3>${s.Name}</h3>
+          <p>Recommended based on interests & rating history using hybrid ML</p>
+          <div class="stu-tags">
+            <span class="stu-tag hi">${s.Level}</span>
+            ${tags.map(t=>`<span class="stu-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+
+    if (!data.recommendations.length) {
+      document.getElementById('r-student').innerHTML = emptyHTML('No new recommendations','This student has already rated most available courses');
+      return;
+    }
+    document.getElementById('r-student').innerHTML =
+      renderRecs(data.recommendations,
+        `Personalised picks for <em>${s.Name.split(' ')[0]}</em>`,
+        `${data.recommendations.length} courses · hybrid ML`,
+        true
+      );
+    bindCards();
+  } catch(e) {
+    document.getElementById('r-student').innerHTML =
+      emptyHTML('Connection failed','Make sure the Flask server is running: <code>python app.py</code>');
+  }
+}
+
+// ── SORT ───────────────────────────────────────────
+function sortRecs(recs, mode) {
+  const r = [...recs];
+  if (mode === 'rating')     return r.sort((a,b) => b.rating - a.rating);
+  if (mode === 'enrolled')   return r.sort((a,b) => b.enrolled - a.enrolled);
+  if (mode === 'price_asc')  return r.sort((a,b) => a.price - b.price);
+  return r; // match (default)
+}
+
+// ── RENDER ─────────────────────────────────────────
+function renderRecs(recs, title, meta, showCollab=false) {
+  const maxPct = Math.max(...recs.map(r => r.match_pct || 0), 1);
+
+  let html = `<div class="res-hd fu">
+    <div class="res-title">${title}</div>
+    <div class="res-meta">
+      <span class="res-count">${recs.length} results</span>
+      <span class="res-searched">${meta||''}</span>
+    </div>
+  </div>
+  <div class="c-grid">`;
+
+  recs.forEach((r, i) => {
+    const pct       = Math.round((r.match_pct || 0) / maxPct * 100);
+    const barCls    = pct >= 70 ? 'bf-hi' : pct >= 45 ? 'bf-md' : 'bf-lo';
+    const diffCls   = r.difficulty==='Beginner' ? 'bd-teal' : r.difficulty==='Intermediate' ? 'bd-amber' : 'bd-rose';
+    const price     = r.price===0 ? '<span class="price free">Free</span>' : `<span class="price">$${Number(r.price).toFixed(2)}</span>`;
+    const stars     = Math.round(r.rating||4);
+    const enr       = r.enrolled >= 1000 ? (r.enrolled/1000).toFixed(0)+'k' : r.enrolled;
+    const tags      = (r.skill_tags||r.skills||'').split(',').slice(0,4).map(t=>`<span class="skill-tag">${t.trim()}</span>`).join('');
+
+    html += `
+    <div class="cc fu d${(i%4)+1}" data-open="0">
+      <div class="cc-top">
+        <div class="cc-rank">#${i+1}</div>
+        <div class="cc-name">${r.course_name}</div>
+        <div class="cc-badges">
+          <span class="bd bd-domain">${r.domain}</span>
+          <span class="bd ${diffCls}">${r.difficulty}</span>
+          <span class="bd bd-indigo">${r.platform}</span>
+        </div>
+        <div class="cc-tags">${tags}</div>
+        <div class="cc-stats">
+          <span class="cstat">
+            <svg viewBox="0 0 24 24" fill="#c08c1a" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <strong>${r.rating}</strong>
+          </span>
+          <span class="cstat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <strong>${r.duration_hrs}h</strong>
+          </span>
+          <span class="cstat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <strong>${enr}</strong> enrolled
+          </span>
+        </div>
+        <div class="match-wrap">
+          <div class="match-labels"><span>Match score</span><b>${pct}%</b></div>
+          <div class="bar-track"><div class="bar-fill ${barCls}" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="cc-expand">
+        <div class="expand-inner">
+          <div class="exp-title">Score Breakdown</div>
+          ${srow('Interest (TF-IDF)', r.interest_score, '#0c9e79')}
+          ${srow('Content Similarity', r.content_score, '#3c4dc2')}
+          ${showCollab ? srow('Collaborative (SVD)', r.collab_score, '#7c40c4') : ''}
+          ${srow('Popularity Signal', r.popularity_score, '#c08c1a')}
+        </div>
+      </div>
+      <div class="cc-foot">
+        ${price}
+        <div class="inst">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          ${r.instructor}
+        </div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function srow(label, val, color) {
+  const v = Math.max(0, Math.min(100, val||0));
+  return `<div class="srow">
+    <span class="slbl">${label}</span>
+    <div class="strk"><div class="sfill" style="width:${Math.round(v)}%;background:${color}"></div></div>
+    <span class="sval">${Math.round(v)}%</span>
+  </div>`;
+}
+
+function emptyHTML(h, p) {
+  return `<div class="empty fu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <h3>${h}</h3><p>${p}</p>
+  </div>`;
+}
+
+function bindCards() {
+  document.querySelectorAll('.cc').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('open'));
+  });
+}
+
+// ── DASHBOARD ──────────────────────────────────────
+async function loadDash() {
+  try {
+    const res = await fetch('/api/metrics');
+    const m   = await res.json();
+    dashLoaded = true;
+
+    // update sidebar counter
+    document.getElementById('sm-c').textContent = m.total_courses.toLocaleString();
+    document.getElementById('corpus-num').textContent = m.total_courses.toLocaleString();
+    document.getElementById('cat-badge').textContent  = m.total_courses.toLocaleString() + ' courses';
+
+    const colors = ['#0c9e79','#3c4dc2','#7c40c4','#c08c1a','#566070'];
+    const wRows  = Object.entries(m.weights).map(([k,v],i) => `
+      <div class="w-row">
+        <span class="w-lbl">${k}</span>
+        <div class="w-bar"><div class="w-fill" style="width:${v*2.5}%;background:${colors[i%colors.length]}"></div></div>
+        <span class="w-pct">${v}%</span>
+      </div>`).join('');
+
+    const domRows = Object.entries(m.domains)
+      .sort((a,b) => b[1]-a[1])
+      .map(([d,n]) => `<div class="dom-chip"><span class="dom-nm">${d}</span><span class="dom-ct">${n}</span></div>`)
+      .join('');
+
+    const platRows = Object.entries(m.platforms||{})
+      .sort((a,b)=>b[1]-a[1]).slice(0,8)
+      .map(([p,n]) => `<div class="dom-chip"><span class="dom-nm">${p}</span><span class="dom-ct">${n}</span></div>`)
+      .join('');
+
+    document.getElementById('dash-content').innerHTML = `
+      <div class="d-grid fu">
+        <div class="d-card d1">
+          <div class="d-val">${m.total_courses.toLocaleString()}</div>
+          <div class="d-lbl">Courses indexed</div>
+          <div class="d-sub">${Object.keys(m.domains).length} domains</div>
+        </div>
+        <div class="d-card d2">
+          <div class="d-val">${m.tfidf_features.toLocaleString()}</div>
+          <div class="d-lbl">TF-IDF features</div>
+          <div class="d-sub">Bigram vocabulary</div>
+        </div>
+        <div class="d-card d3">
+          <div class="d-val">${m.svd_components}</div>
+          <div class="d-lbl">SVD latent factors</div>
+          <div class="d-sub">${m.explained_variance}% variance</div>
+        </div>
+        <div class="d-card d4">
+          <div class="d-val">${m.total_ratings}</div>
+          <div class="d-lbl">Training ratings</div>
+          <div class="d-sub">${m.total_students} student profiles</div>
+        </div>
+      </div>
+
+      <div class="sec-card fu d2">
+        <h3>Hybrid Scoring Weights</h3>
+        ${wRows}
+      </div>
+
+      <div class="sec-card fu d3">
+        <h3>Courses by Domain (${m.total_courses.toLocaleString()} total)</h3>
+        <div class="dom-grid">${domRows}</div>
+      </div>
+
+      <div class="sec-card fu d3">
+        <h3>Courses by Platform</h3>
+        <div class="dom-grid">${platRows}</div>
+      </div>
+
+      <div class="sec-card fu d4">
+        <h3>How the ML Algorithm Works</h3>
+        <p style="font-size:13.5px;color:var(--ink3);line-height:1.85;font-weight:300">
+          <strong style="color:var(--ink);font-weight:500">TF-IDF (bigram, ${m.tfidf_features.toLocaleString()} features)</strong> — every course is vectorised from its domain, name, skills, difficulty, and platform. Your search query is transformed into the same vector space and cosine similarity finds the closest matches across all ${m.total_courses.toLocaleString()} courses.<br><br>
+          <strong style="color:var(--ink);font-weight:500">Content-Based Filtering</strong> — measures similarity between candidate courses and courses a student has already rated highly, creating a preference fingerprint.<br><br>
+          <strong style="color:var(--ink);font-weight:500">SVD Collaborative Filtering (${m.svd_components} factors, ${m.explained_variance}% variance)</strong> — the user-item rating matrix is decomposed into latent factors. Students with similar taste vectors surface courses the target student hasn't seen yet.<br><br>
+          <strong style="color:var(--ink);font-weight:500">Difficulty Alignment</strong> — penalises courses too far above or below the student's level; rewards courses one tier up as optimal stretch goals.<br><br>
+          <strong style="color:var(--ink);font-weight:500">Popularity Signal</strong> — blends normalised enrollment count (55%) and average course rating (45%) to promote trusted courses without over-weighting virality.
+        </p>
+      </div>`;
+  } catch(e) {
+    document.getElementById('dash-content').innerHTML =
+      emptyHTML('Dashboard unavailable','Could not connect to the Flask API');
+  }
+}
+
+// ── KEYBOARD ───────────────────────────────────────
+document.getElementById('q').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+// ── CLOSE SIDEBAR ON OUTSIDE CLICK ─────────────────
+document.addEventListener('click', e => {
+  if (window.innerWidth >= 800) return;
+  const sb  = document.getElementById('sidebar');
+  const ham = document.getElementById('ham');
+  if (!sb.contains(e.target) && !ham.contains(e.target)) {
+    sb.classList.remove('open');
+  }
+});
+
+// ── INIT — load metrics quietly ─────────────────────
+fetch('/api/metrics').then(r=>r.json()).then(m=>{
+  document.getElementById('sm-c').textContent    = m.total_courses.toLocaleString();
+  document.getElementById('corpus-num').textContent = m.total_courses.toLocaleString();
+  document.getElementById('cat-badge').textContent  = m.total_courses.toLocaleString()+' courses';
+}).catch(()=>{});
+</script>
+</body>
+</html>
